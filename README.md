@@ -224,9 +224,9 @@ Evaluation report available at `results/text_baseline_eval.txt`.
 
 A few example pages after preprocessing:
 
-![Sample 1](results/preprocessing/sample_1.png)
-![Sample 2](results/preprocessing/sample_2.png)
-![Sample 3](results/preprocessing/sample_3.png)
+![Sample 1](results/preprocessing/sample_1_9.png)
+![Sample 2](results/preprocessing/sample_3_0.png)
+![Sample 3](results/preprocessing/sample_10_2.png)
 
 ## Reproducibility
 This project fixes seeds in data splitting, data loaders and training scripts to enable repeatable results.
