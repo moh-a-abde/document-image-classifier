@@ -57,8 +57,8 @@ jobs:
           # First install numpy 1.x to avoid compatibility issues with PyTorch
           pip install "numpy<2.0.0"
           
-          # Install PyTorch before other dependencies to make sure it uses the correct numpy
-          pip install torch==2.0.1 torchvision==0.15.2
+          # Install PyTorch CPU-only version to avoid CUDA dependencies
+          pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cpu
           
           # Install core image processing libraries
           pip install opencv-python matplotlib seaborn scikit-learn pandas
@@ -67,24 +67,92 @@ jobs:
           pip install -r requirements.txt --no-deps 
           pip check || echo "Warning: Some dependencies may be missing"
 
+      # Skip CUDA checks and print environment info
+      - name: Create CUDA check override
+        run: |
+          source venv/bin/activate
+          
+          # Create a temporary script to check PyTorch environment safely
+          cat > check_env.py << 'EOF'
+          import torch
+          import os
+          import sys
+          
+          # Print PyTorch version
+          print(f"PyTorch version: {torch.__version__}")
+          
+          # Check for CUDA but handle errors gracefully
+          try:
+              is_cuda_available = torch.cuda.is_available()
+          except:
+              print("CUDA check failed, assuming CUDA is not available")
+              is_cuda_available = False
+          
+          print(f"CUDA available: {is_cuda_available}")
+          print(f"Device: {'cuda' if is_cuda_available else 'cpu'}")
+          
+          # Print other environment info
+          try:
+              import numpy
+              print(f"NumPy version: {numpy.__version__}")
+          except ImportError:
+              print("NumPy not available")
+          
+          print(f"Python version: {sys.version}")
+          print(f"OS: {os.name}")
+          EOF
+          
+          # Run the script
+          python check_env.py
+
       # Run the data loader test with detailed error logging
       - name: Test data loaders
         run: |
           source venv/bin/activate
-          python -c "import torch; import numpy; print(f'PyTorch version: {torch.__version__}'); print(f'NumPy version: {numpy.__version__}')"
-          python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('Device:', torch.device('cuda' if torch.cuda.is_available() else 'cpu'))"
+          
+          # Create a patch for the data_loaders.py to avoid CUDA usage
+          cat > cuda_patch.py << 'EOF'
+          import os
+          import sys
+          
+          # Override the test_data_loaders.py file to avoid CUDA issues
+          file_path = 'test_data_loaders.py'
+          
+          with open(file_path, 'r') as f:
+              content = f.read()
+          
+          # Add a flag to avoid CUDA usage
+          patched_content = content.replace(
+              'import torch', 
+              'import torch\nimport os\nos.environ["CUDA_VISIBLE_DEVICES"] = ""\ntorch.cuda.is_available = lambda: False'
+          )
+          
+          with open(file_path, 'w') as f:
+              f.write(patched_content)
+              
+          print("Applied CUDA patch to test_data_loaders.py")
+          EOF
+          
+          # Apply the patch
+          python cuda_patch.py
+          
+          # Run the script
           python test_data_loaders.py
 
       # Run training
       - name: Train baseline image model
         run: |
           source venv/bin/activate
+          # Force CPU usage
+          export CUDA_VISIBLE_DEVICES=""
           python src/training/train_image_model.py --batch-size 32 --epochs 10 --learning-rate 1e-3 --patience 5 --plot-history --device cpu
 
       # Run evaluation
       - name: Evaluate baseline image model
         run: |
           source venv/bin/activate
+          # Force CPU usage
+          export CUDA_VISIBLE_DEVICES=""
           python test_image_model.py --device cpu
 
       # Generate summary report
@@ -96,11 +164,11 @@ jobs:
           echo "" >> model_results.md
           echo "## Environment Information" >> model_results.md
           echo "" >> model_results.md
-          echo "- PyTorch: $(python -c "import torch; print(torch.__version__)")" >> model_results.md
-          echo "- NumPy: $(python -c "import numpy; print(numpy.__version__)")" >> model_results.md
-          echo "- CUDA Available: $(python -c "import torch; print(torch.cuda.is_available())")" >> model_results.md
-          echo "" >> model_results.md
           
+          # Use the safer environment check
+          python check_env.py >> model_results.md
+          
+          echo "" >> model_results.md
           echo "## Training Summary" >> model_results.md
           echo "" >> model_results.md
           
