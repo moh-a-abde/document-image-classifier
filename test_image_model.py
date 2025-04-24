@@ -8,7 +8,6 @@ This script loads the best model saved during training and evaluates it on the t
 import os
 import sys
 import pandas as pd
-import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -16,6 +15,19 @@ import seaborn as sns
 import argparse
 import logging
 from datetime import datetime
+
+# Setting environment variables to avoid CUDA errors if CUDA is not available
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:512'
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+os.environ['TORCH_USE_CUDA_DSA'] = '0'
+
+# Disable CUDA in CI environments to avoid errors
+if "CI" in os.environ or "GITHUB_ACTIONS" in os.environ:
+    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+    print("CI environment detected. Disabling CUDA.")
+
+# Import PyTorch after setting environment variables
+import torch
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))

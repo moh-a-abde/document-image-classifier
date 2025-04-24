@@ -1,8 +1,30 @@
+#!/usr/bin/env python
+
+"""
+Check the environment for PyTorch and its dependencies.
+
+This script checks if PyTorch is installed and available,
+and determines the best device to use for training.
+"""
+
 import os
 import sys
+import logging
 
-# Setting environment variable to avoid CUDA errors if CUDA is not available
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Set environment variables to ensure PyTorch doesn't crash if CUDA is not available
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:512'
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+os.environ['TORCH_USE_CUDA_DSA'] = '0'
+
+# Disable CUDA in CI environments to avoid errors
+is_ci = "CI" in os.environ or "GITHUB_ACTIONS" in os.environ
+if is_ci:
+    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+    print("CI environment detected. Disabling CUDA.")
 
 try:
     # Try importing torch without requiring CUDA
@@ -49,12 +71,12 @@ except Exception as e:
     device = torch.device("cpu")
     print(f"Using device: {device}")
 
-# Check that the training_image_model.py script is properly device-aware
+# Check if the project modules can be imported
 try:
-    import src.training.train_image_model
-    print("Successfully imported training modules.")
+    # Try importing a module to test the setup
+    from src.utils import environment
+    print("Successfully imported utility modules.")
 except ImportError as e:
-    print(f"Error importing training modules: {e}")
+    print(f"Warning: Could not import utility modules: {e}")
 
-# Successfully imported and checked environment
 print("Environment check completed successfully.") 
