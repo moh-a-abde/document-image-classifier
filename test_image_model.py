@@ -55,6 +55,9 @@ def plot_confusion_matrix(y_true, y_pred, class_names, results_dir):
     # Ensure results directory exists
     os.makedirs(results_dir, exist_ok=True)
     
+    # Ensure class_names are strings
+    class_names = [str(name) for name in class_names]
+    
     # Compute confusion matrix
     cm = confusion_matrix(y_true, y_pred)
     
@@ -154,20 +157,38 @@ def main():
     logger.info(f"Test set size: {len(test_df)}")
     
     # Create data loader for test set
-    class_names = sorted(test_df['label'].unique())
+    # Get original class names (for the model)
+    orig_class_names = sorted(test_df['label'].unique())
+    
+    # Create string versions for display
+    class_names = [str(name) for name in orig_class_names]
     logger.info(f"Classes: {class_names}")
     
-    # Create dummy DataFrames for train and val (required by create_data_loaders)
-    # We'll only use the test loader
-    dummy_df = pd.DataFrame({'image_path': [], 'text_path': [], 'label': []})
+    # Get image dimensions and channels from model config
+    from src.models.image_model import get_model_config
+    image_config = get_model_config()
+    target_size = image_config['input_size']
+    num_channels = image_config['num_channels']
     
-    # Create data loaders
-    data_loaders = create_data_loaders(
-        dummy_df,  # train_df (not used)
-        dummy_df,  # val_df (not used)
-        test_df=test_df,
+    # Create class to index mapping using original values
+    class_to_idx = {cls_name: i for i, cls_name in enumerate(orig_class_names)}
+    
+    # Create test dataset directly
+    from src.training.train_image import DocumentImageDataset
+    test_dataset = DocumentImageDataset(
+        test_df, 
+        target_size=target_size, 
+        num_channels=num_channels,
+        class_to_idx=class_to_idx
+    )
+    
+    # Create test loader
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
         batch_size=args.batch_size,
-        num_workers=args.num_workers
+        shuffle=False,
+        num_workers=args.num_workers,
+        pin_memory=True
     )
     
     # Create model
@@ -183,7 +204,7 @@ def main():
     
     # Evaluate model
     logger.info("Evaluating model on test set...")
-    predictions, true_labels = predict(model, data_loaders['test'], device)
+    predictions, true_labels = predict(model, test_loader, device)
     
     # Calculate metrics
     accuracy = accuracy_score(true_labels, predictions)

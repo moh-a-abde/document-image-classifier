@@ -1,0 +1,17 @@
+Evaluation Date: 2025-04-24 11:12:53
+Model: models/image_baseline_best.pt
+Test Set Size: 375
+Test Accuracy: 81.33%
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.85      0.88      0.86        75
+           2       0.88      0.91      0.89        75
+           4       0.78      0.87      0.82        75
+           6       0.79      0.76      0.78        75
+           9       0.75      0.65      0.70        75
+
+    accuracy                           0.81       375
+   macro avg       0.81      0.81      0.81       375
+weighted avg       0.81      0.81      0.81       375
