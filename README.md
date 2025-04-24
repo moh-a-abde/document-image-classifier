@@ -232,10 +232,10 @@ graph TD
 **Architecture Diagram**
 ```mermaid
 graph TD
-  A[Input Text] --> B(TF-IDF Vectorizer)
-  B --> C{Feature Vector (10k dims)}
-  C --> D[Logistic Regression]
-  D --> E[Output Probabilities (5 Classes)]
+  A["Input Text"] --> B["TF-IDF Vectorizer"]
+  B --> C["Feature Vector (10k dims)"]
+  C --> D["Logistic Regression"]
+  D --> E["Output Probabilities (5 Classes)"]
 ```
 
 #### Performance
