@@ -8,6 +8,7 @@ This is a wrapper script that calls the training code in src/training/train_imag
 import sys
 import subprocess
 import os
+import torch
 
 if __name__ == "__main__":
     # Ensure models directory exists
@@ -18,6 +19,17 @@ if __name__ == "__main__":
     
     print("Starting image model training...")
     
+    # Determine best available device
+    if torch.cuda.is_available():
+        device = "cuda"
+        print("CUDA is available. Using GPU for training.")
+    elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        device = "mps"
+        print("MPS is available. Using Apple Silicon GPU for training.")
+    else:
+        device = "cpu"
+        print("No GPU detected. Using CPU for training (this will be slower).")
+    
     # Build the command to run the training script
     cmd = [
         "python", "src/training/train_image_model.py",
@@ -25,6 +37,7 @@ if __name__ == "__main__":
         "--epochs", "50",
         "--learning-rate", "1e-3",
         "--patience", "5",
+        "--device", device,
         "--plot-history"
     ]
     

@@ -60,7 +60,30 @@ def evaluate_model(test_df, args):
     )
     
     # Set device
-    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    if args.device == 'auto':
+        if torch.cuda.is_available():
+            device = torch.device('cuda')
+            logger.info("CUDA is available. Using GPU for evaluation.")
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            device = torch.device('mps')
+            logger.info("MPS is available. Using Apple Silicon GPU for evaluation.")
+        else:
+            device = torch.device('cpu')
+            logger.info("No GPU detected. Using CPU for evaluation (this will be slower).")
+    else:
+        # Use the specified device if possible
+        if args.device == 'cuda' and torch.cuda.is_available():
+            device = torch.device('cuda')
+            logger.info("Using CUDA as specified.")
+        elif args.device == 'mps' and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            device = torch.device('mps')
+            logger.info("Using MPS as specified.")
+        else:
+            if args.device not in ['cpu', 'auto']:
+                logger.warning(f"Requested device '{args.device}' is not available. Falling back to CPU.")
+            device = torch.device('cpu')
+            logger.info("Using CPU for evaluation.")
+    
     logger.info(f"Using device: {device}")
     
     # Create model
@@ -68,8 +91,20 @@ def evaluate_model(test_df, args):
     model = model.to(device)
     
     # Load best checkpoint
-    model, _, _, best_val_acc = load_checkpoint(model, filename=args.checkpoint_path)
-    logger.info(f"Loaded checkpoint with validation accuracy: {best_val_acc:.2f}%")
+    try:
+        model, _, _, best_val_acc = load_checkpoint(model, filename=args.checkpoint_path)
+        logger.info(f"Loaded checkpoint with validation accuracy: {best_val_acc:.2f}%")
+    except Exception as e:
+        logger.error(f"Error loading checkpoint: {e}")
+        # Try loading with map_location to handle device mismatch
+        try:
+            checkpoint = torch.load(args.checkpoint_path, map_location=device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            best_val_acc = checkpoint.get('val_acc', 'unknown')
+            logger.info(f"Loaded model with map_location. Validation accuracy: {best_val_acc}")
+        except Exception as e2:
+            logger.error(f"Failed to load checkpoint even with map_location: {e2}")
+            raise RuntimeError(f"Could not load model checkpoint: {e}, {e2}")
     
     # Set model to evaluation mode
     model.eval()
@@ -242,8 +277,8 @@ def parse_args():
                         help='Number of classes')
     parser.add_argument('--num-workers', type=int, default=4,
                         help='Number of worker processes for data loading')
-    parser.add_argument('--device', type=str, default='cuda',
-                        help='Device to use for evaluation (cuda or cpu)')
+    parser.add_argument('--device', type=str, default='auto',
+                        help='Device to use for evaluation (cuda, mps, cpu, or auto)')
     
     # Input/output paths
     parser.add_argument('--checkpoint-path', type=str, default='models/image_baseline_best.pt',
@@ -291,10 +326,15 @@ def main():
     
     # Evaluate model
     logger.info("Evaluating model...")
-    results = evaluate_model(test_df, args)
-    
-    logger.info("Evaluation complete!")
-    logger.info(f"Test Accuracy: {results['accuracy']:.4f}")
+    try:
+        results = evaluate_model(test_df, args)
+        logger.info("Evaluation complete!")
+        logger.info(f"Test Accuracy: {results['accuracy']:.4f}")
+    except Exception as e:
+        logger.error(f"Error during evaluation: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
 
 
 if __name__ == '__main__':

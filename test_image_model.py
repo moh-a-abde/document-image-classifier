@@ -104,8 +104,8 @@ def parse_args():
                         help='Batch size for evaluation')
     parser.add_argument('--num-workers', type=int, default=4,
                         help='Number of worker processes for data loading')
-    parser.add_argument('--device', type=str, default='cuda',
-                        help='Device to use for evaluation (cuda or cpu)')
+    parser.add_argument('--device', type=str, default='auto',
+                        help='Device to use for evaluation (cuda, mps, cpu, or auto)')
     
     # Output paths
     parser.add_argument('--results-dir', type=str, default='results/image_baseline',
@@ -126,8 +126,6 @@ def main():
         # Set random seed for reproducibility
         torch.manual_seed(args.seed)
         np.random.seed(args.seed)
-        if torch.cuda.is_available() and args.device == 'cuda':
-            torch.cuda.manual_seed(args.seed)
         
         # Ensure results directory exists
         os.makedirs(args.results_dir, exist_ok=True)
@@ -140,8 +138,33 @@ def main():
         except ImportError:
             logger.warning("NumPy not available")
         
-        # Set device
-        device = torch.device(args.device if (args.device == 'cuda' and torch.cuda.is_available()) else "cpu")
+        # Set device based on availability
+        if args.device == 'auto':
+            if torch.cuda.is_available():
+                device = torch.device('cuda')
+                torch.cuda.manual_seed(args.seed)
+                logger.info("CUDA is available. Using GPU for evaluation.")
+            elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                device = torch.device('mps')
+                logger.info("MPS is available. Using Apple Silicon GPU for evaluation.")
+            else:
+                device = torch.device('cpu')
+                logger.info("No GPU detected. Using CPU for evaluation (this will be slower).")
+        else:
+            # Use the specified device if possible
+            if args.device == 'cuda' and torch.cuda.is_available():
+                device = torch.device('cuda')
+                torch.cuda.manual_seed(args.seed)
+                logger.info("Using CUDA as specified.")
+            elif args.device == 'mps' and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                device = torch.device('mps')
+                logger.info("Using MPS as specified.")
+            else:
+                if args.device != 'cpu':
+                    logger.warning(f"Requested device '{args.device}' is not available. Falling back to CPU.")
+                device = torch.device('cpu')
+                logger.info("Using CPU for evaluation.")
+        
         logger.info(f"Using device: {device}")
         
         # Check if model checkpoint exists
@@ -201,8 +224,24 @@ def main():
             
             # Load checkpoint
             logger.info(f"Loading model checkpoint from {args.checkpoint_path}")
-            model, _, _, best_val_acc = load_checkpoint(model, filename=args.checkpoint_path)
-            logger.info(f"Loaded model with validation accuracy: {best_val_acc:.2f}%")
+            try:
+                model, _, _, best_val_acc = load_checkpoint(model, filename=args.checkpoint_path)
+                logger.info(f"Loaded model with validation accuracy: {best_val_acc:.2f}%")
+            except Exception as e:
+                logger.error(f"Error loading checkpoint: {e}")
+                # Try loading with map_location to handle device mismatch
+                try:
+                    checkpoint = torch.load(args.checkpoint_path, map_location=device)
+                    model.load_state_dict(checkpoint['model_state_dict'])
+                    best_val_acc = checkpoint.get('val_acc', 'unknown')
+                    logger.info(f"Loaded model with map_location. Validation accuracy: {best_val_acc}")
+                except Exception as e2:
+                    logger.error(f"Failed to load checkpoint even with map_location: {e2}")
+                    with open(os.path.join(args.results_dir, 'image_baseline_eval.txt'), 'w') as f:
+                        f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                        f.write(f"Error loading checkpoint: {e}\n")
+                        f.write(f"Secondary error: {e2}\n")
+                    sys.exit(1)
             
             # Move model to device
             model = model.to(device)
@@ -248,17 +287,12 @@ def main():
             with open(os.path.join(args.results_dir, 'image_baseline_eval.txt'), 'w') as f:
                 f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
                 f.write(f"Error during evaluation: {e}\n")
-                f.write("\nTraceback:\n")
-                import traceback
-                f.write(traceback.format_exc())
-            
-            sys.exit(1)
-            
+                
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         import traceback
         logger.error(traceback.format_exc())
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main() 
