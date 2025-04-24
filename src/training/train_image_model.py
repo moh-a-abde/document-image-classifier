@@ -269,8 +269,6 @@ def parse_args():
                         help='Plot training history')
     parser.add_argument('--seed', type=int, default=42,
                         help='Random seed for reproducibility')
-    parser.add_argument('--debug', action='store_true',
-                        help='Enable debug mode with more logging')
     
     return parser.parse_args()
 
@@ -280,133 +278,78 @@ def main():
     # Parse arguments
     args = parse_args()
     
-    try:
-        # Set random seed for reproducibility
-        torch.manual_seed(args.seed)
-        np.random.seed(args.seed)
-        if torch.cuda.is_available() and args.device == 'cuda':
-            torch.cuda.manual_seed(args.seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-        
-        # Ensure directories exist
-        os.makedirs(os.path.dirname(args.checkpoint_path), exist_ok=True)
-        os.makedirs(args.results_dir, exist_ok=True)
-        
-        # Set up logging
-        if args.debug:
-            logging.basicConfig(level=logging.DEBUG)
-            logger.setLevel(logging.DEBUG)
-        
-        # Log system info
-        logger.info(f"PyTorch version: {torch.__version__}")
-        try:
-            import numpy
-            logger.info(f"NumPy version: {numpy.__version__}")
-        except ImportError:
-            logger.warning("NumPy not available")
-        
-        logger.info(f"CUDA available: {torch.cuda.is_available()}")
-        logger.info(f"Using device: {args.device}")
-        
-        # Log training configuration
-        logger.info("Training configuration:")
-        for arg in vars(args):
-            logger.info(f"  {arg}: {getattr(args, arg)}")
-        
-        # Check if data splits exist, otherwise load and create splits
-        splits_dir = 'results/splits'
-        train_path = os.path.join(splits_dir, 'train.csv')
-        val_path = os.path.join(splits_dir, 'val.csv')
-        test_path = os.path.join(splits_dir, 'test.csv')
-        
-        if (os.path.exists(train_path) and 
-            os.path.exists(val_path) and 
-            os.path.exists(test_path)):
-            logger.info("Loading existing data splits...")
-            try:
-                train_df = pd.read_csv(train_path)
-                val_df = pd.read_csv(val_path)
-                test_df = pd.read_csv(test_path)
-            except Exception as e:
-                logger.error(f"Error loading data splits: {e}")
-                logger.info("Creating new data splits instead...")
-                # Fallback to creating new splits
-                df = load_data_paths(args.image_dir, args.ocr_dir)
-                train_df, val_df, test_df = create_data_splits(
-                    df, 
-                    train_size=0.7, 
-                    val_size=0.15, 
-                    test_size=0.15, 
-                    random_state=args.seed
-                )
-                
-                # Save splits
-                os.makedirs(splits_dir, exist_ok=True)
-                train_df.to_csv(train_path, index=False)
-                val_df.to_csv(val_path, index=False)
-                test_df.to_csv(test_path, index=False)
-        else:
-            logger.info("Creating new data splits...")
-            # Load data
-            df = load_data_paths(args.image_dir, args.ocr_dir)
-            
-            # Create splits
-            train_df, val_df, test_df = create_data_splits(
-                df, 
-                train_size=0.7, 
-                val_size=0.15, 
-                test_size=0.15, 
-                random_state=args.seed
-            )
-            
-            # Save splits
-            os.makedirs(splits_dir, exist_ok=True)
-            train_df.to_csv(train_path, index=False)
-            val_df.to_csv(val_path, index=False)
-            test_df.to_csv(test_path, index=False)
-        
-        # Log dataset sizes
-        logger.info(f"Training set size: {len(train_df)}")
-        logger.info(f"Validation set size: {len(val_df)}")
-        logger.info(f"Test set size: {len(test_df)}")
-        
-        # Train the model
-        logger.info("Starting model training...")
-        start_time = datetime.now()
-        
-        # Use a try-except block to catch any training errors
-        try:
-            history = train_model(train_df, val_df, args)
-            
-            end_time = datetime.now()
-            training_time = end_time - start_time
-            logger.info(f"Training completed in {training_time}")
-            
-            # Save training metrics
-            metrics_df = pd.DataFrame(history)
-            metrics_df.to_csv(os.path.join(args.results_dir, 'training_metrics.csv'), index=False)
-            logger.info(f"Training metrics saved to {os.path.join(args.results_dir, 'training_metrics.csv')}")
-            
-            logger.info(f"Best model saved to {args.checkpoint_path}")
-            logger.info("Training complete!")
-        except Exception as e:
-            logger.error(f"Error during training: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            # Create an empty metrics file to avoid downstream errors
-            empty_history = {
-                'train_loss': [], 'train_acc': [], 'val_loss': [], 'val_acc': [], 'learning_rate': []
-            }
-            pd.DataFrame(empty_history).to_csv(os.path.join(args.results_dir, 'training_metrics.csv'), index=False)
-            logger.warning("Created empty metrics file due to training error")
-            raise
+    # Set random seed for reproducibility
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(args.seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
     
-    except Exception as e:
-        logger.error(f"Fatal error: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        sys.exit(1)
+    # Ensure directories exist
+    os.makedirs(os.path.dirname(args.checkpoint_path), exist_ok=True)
+    os.makedirs(args.results_dir, exist_ok=True)
+    
+    # Log training configuration
+    logger.info("Training configuration:")
+    for arg in vars(args):
+        logger.info(f"  {arg}: {getattr(args, arg)}")
+    
+    # Check if data splits exist, otherwise load and create splits
+    splits_dir = 'results/splits'
+    train_path = os.path.join(splits_dir, 'train.csv')
+    val_path = os.path.join(splits_dir, 'val.csv')
+    test_path = os.path.join(splits_dir, 'test.csv')
+    
+    if (os.path.exists(train_path) and 
+        os.path.exists(val_path) and 
+        os.path.exists(test_path)):
+        logger.info("Loading existing data splits...")
+        train_df = pd.read_csv(train_path)
+        val_df = pd.read_csv(val_path)
+        test_df = pd.read_csv(test_path)
+    else:
+        logger.info("Creating new data splits...")
+        # Load data
+        df = load_data_paths(args.image_dir, args.ocr_dir)
+        
+        # Create splits
+        train_df, val_df, test_df = create_data_splits(
+            df, 
+            train_size=0.7, 
+            val_size=0.15, 
+            test_size=0.15, 
+            random_state=args.seed
+        )
+        
+        # Save splits
+        os.makedirs(splits_dir, exist_ok=True)
+        train_df.to_csv(train_path, index=False)
+        val_df.to_csv(val_path, index=False)
+        test_df.to_csv(test_path, index=False)
+    
+    # Log dataset sizes
+    logger.info(f"Training set size: {len(train_df)}")
+    logger.info(f"Validation set size: {len(val_df)}")
+    logger.info(f"Test set size: {len(test_df)}")
+    
+    # Train the model
+    logger.info("Starting model training...")
+    start_time = datetime.now()
+    
+    history = train_model(train_df, val_df, args)
+    
+    end_time = datetime.now()
+    training_time = end_time - start_time
+    logger.info(f"Training completed in {training_time}")
+    
+    # Save training metrics
+    metrics_df = pd.DataFrame(history)
+    metrics_df.to_csv(os.path.join(args.results_dir, 'training_metrics.csv'), index=False)
+    logger.info(f"Training metrics saved to {os.path.join(args.results_dir, 'training_metrics.csv')}")
+    
+    logger.info(f"Best model saved to {args.checkpoint_path}")
+    logger.info("Training complete!")
 
 
 if __name__ == "__main__":

@@ -27,36 +27,23 @@ def denormalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
 
 def display_batch(images, labels, class_names):
     """Display a batch of images with their labels."""
-    try:
-        fig, axes = plt.subplots(2, 4, figsize=(12, 6))
-        axes = axes.flatten()
+    fig, axes = plt.subplots(2, 4, figsize=(12, 6))
+    axes = axes.flatten()
+    
+    for i, (img, label) in enumerate(zip(images[:8], labels[:8])):
+        img = img.numpy().transpose(1, 2, 0)  # CHW -> HWC
         
-        for i, (img, label) in enumerate(zip(images[:8], labels[:8])):
-            try:
-                # Try using numpy for conversion
-                img_np = img.numpy().transpose(1, 2, 0)  # CHW -> HWC
-            except RuntimeError as e:
-                if "Numpy is not available" in str(e):
-                    # If numpy conversion fails, try using torch's permute instead
-                    img_np = img.permute(1, 2, 0).cpu().detach().clone()
-                    print("Used PyTorch tensors instead of NumPy arrays for visualization")
-                else:
-                    raise e
-            
-            # Denormalize if needed
-            if img_np.min() < 0 or img_np.max() > 1:
-                img_np = torch.clamp(img_np, 0, 1) if isinstance(img_np, torch.Tensor) else np.clip(img_np, 0, 1)
-            
-            axes[i].imshow(img_np)
-            axes[i].set_title(f"Class: {class_names[label]}")
-            axes[i].axis('off')
+        # Denormalize if needed
+        if img.min() < 0 or img.max() > 1:
+            img = np.clip(img, 0, 1)
         
-        plt.tight_layout()
-        plt.savefig('data_loader_test.png')
-        print(f"Saved sample batch to data_loader_test.png")
-    except Exception as e:
-        print(f"Warning: Could not display batch images due to an error: {str(e)}")
-        print("Continuing without visualization...")
+        axes[i].imshow(img)
+        axes[i].set_title(f"Class: {class_names[label]}")
+        axes[i].axis('off')
+    
+    plt.tight_layout()
+    plt.savefig('data_loader_test.png')
+    print(f"Saved sample batch to data_loader_test.png")
 
 def main():
     print("Testing data loaders for the image model...")
