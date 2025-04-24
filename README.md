@@ -176,18 +176,40 @@ bash run_text_baseline.sh     # train & evaluate text model
 ![Training History](results/image_baseline/training_history.png)
 
 ### Text Baseline Model
-- **Features**: TF‑IDF vectorization (10 000 features)
-- **Model**: Logistic Regression (one‑vs‑rest) with grid search hyper‑tuning
+- **Architecture**: Logistic Regression with one-vs-rest strategy
+- **Features**: TF‑IDF vectorization (10,000 features)
+- **Hyperparameter Tuning**: Grid search with cross-validation
+  - **Best Parameters**: C=10, penalty='l2', class_weight=None
+  - **Best CV Score**: 0.8425
 
-**Feature Importance (top coefficients)**
+#### Performance
 
-![TF‑IDF Feature Importance](results/text_baseline/tfidf_feature_importance.png)
+| Metric | Score |
+|--------|-------|
+| **Accuracy** | **83.20%** |
+| **Macro F1** | **0.8323** |
+
+**Per‑class results**
+
+| Class | Precision | Recall | F1 |
+|-------|-----------|--------|----|
+| 0 | 0.88 | 0.88 | 0.88 |
+| 2 | 0.96 | 0.85 | 0.90 |
+| 4 | 0.73 | 0.92 | 0.81 |
+| 6 | 0.89 | 0.83 | 0.86 |
+| 9 | 0.75 | 0.68 | 0.71 |
+
+**Confusion Matrix**
+
+![Confusion Matrix](results/text_baseline/confusion_matrix.png)
 
 **Class‑wise Performance**
 
 ![Class Performance](results/text_baseline/class_performance.png)
 
-Evaluation report available at `results/text_baseline_eval.txt`.
+**Feature Importance (top coefficients)**
+
+![TF‑IDF Feature Importance](results/text_baseline/tfidf_feature_importance.png)
 
 ## Preprocessing Pipeline
 
@@ -234,4 +256,19 @@ This project fixes seeds in data splitting, data loaders and training scripts to
 ## Future Work
 - Build a multimodal fusion model combining image & text features
 - Explore advanced architectures and fine‑tuning
+
+## Model Comparison: Image vs. Text Baselines
+
+| Model | Accuracy | Macro F1 | Notes |
+|-------|----------|----------|-------|
+| **Image Baseline** | 81.33% | 0.81 | EfficientNet-B0 with transfer learning |
+| **Text Baseline** | 83.20% | 0.83 | Logistic Regression with TF-IDF features |
+
+The text-based model achieves slightly better overall performance than the image-based model, suggesting that the OCR text contains strong discriminative features for document classification. The text model performs particularly well on classes 0, 2, and 6, while both models struggle more with class 9.
+
+Key observations:
+- Text model has higher precision for class 2 (0.96 vs 0.88)
+- Text model has higher recall for class 4 (0.92 vs 0.87)
+- Both models have similar challenges with class 9 (F1 scores of 0.70-0.71)
+- A multimodal approach combining both modalities could potentially leverage the strengths of each approach
 
