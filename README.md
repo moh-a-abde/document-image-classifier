@@ -104,4 +104,70 @@ The project is organized into the following sprints:
 5. **Final Evaluation, Documentation, and Packaging** (Planned)
    - Comprehensive evaluation
    - Documentation and reporting
-   - Model packaging and deployment guidance 
+   - Model packaging and deployment guidance
+
+## Baseline Image Model
+
+The baseline image model uses EfficientNet-B0 pretrained on ImageNet to classify document images. The model architecture is implemented in `src/models/image_model.py`.
+
+### Running the Baseline Model
+
+You can run the baseline model training and evaluation using the provided shell script:
+
+```bash
+./run_baseline_image_model.sh
+```
+
+This script will:
+
+1. Test the data loaders
+2. Train the model
+3. Evaluate the model on the test set
+4. Save results to the `results/image_baseline/` directory
+
+### Manual Execution
+
+If you prefer to run each step manually:
+
+1. Test data loaders:
+```bash
+python test_data_loaders.py
+```
+
+2. Train the model:
+```bash
+python src/training/train_image_model.py --batch-size 32 --epochs 50 --learning-rate 1e-3 --patience 5 --plot-history
+```
+
+3. Evaluate the model:
+```bash
+python test_image_model.py
+```
+
+## GitHub Actions Workflow
+
+This repository includes a GitHub Actions workflow that automatically runs the baseline image model pipeline whenever changes are pushed to the main branch.
+
+To manually trigger the workflow:
+
+1. Go to the GitHub repository
+2. Click on the "Actions" tab
+3. Select "Baseline Image Model Training" from the workflows list
+4. Click "Run workflow"
+
+The workflow will:
+- Set up the Python environment
+- Install dependencies
+- Run the data loader test, training, and evaluation
+- Generate a summary report
+- Commit the results back to the repository
+
+## Results
+
+After running the baseline model, you'll find the following results:
+
+- Trained model: `models/image_baseline_best.pt`
+- Training metrics: `results/image_baseline/training_metrics.csv`
+- Training history plot: `results/image_baseline/training_history.png`
+- Evaluation results: `results/image_baseline/image_baseline_eval.txt`
+- Confusion matrix: `results/image_baseline/confusion_matrix.png` 
