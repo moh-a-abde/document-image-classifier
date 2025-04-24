@@ -2,21 +2,6 @@
 
 This project develops a machine learning model to classify scanned document images into five predefined categories (0, 2, 4, 6, 9), leveraging both image data and OCR text.
 
-## Quick Model Comparison: Image vs. Text Baselines
-
-| Model | Accuracy | Macro F1 | Notes |
-|-------|----------|----------|-------|
-| **Image Baseline** | 81.33% | 0.81 | EfficientNet-B0 with transfer learning |
-| **Text Baseline** | 83.20% | 0.83 | Logistic Regression with TF-IDF features |
-
-The text-based model achieves slightly better overall performance than the image-based model, suggesting that the OCR text contains strong discriminative features for document classification. The text model performs particularly well on classes 0, 2, and 6, while both models struggle more with class 9.
-
-Key observations:
-- Text model has higher precision for class 2 (0.96 vs 0.88)
-- Text model has higher recall for class 4 (0.92 vs 0.87)
-- Both models have similar challenges with class 9 (F1 scores of 0.70-0.71)
-- A multimodal approach combining both modalities could potentially leverage the strengths of each approach
-
 ## Dataset
 
 - **Overview**: 2500 scanned documents split into 5 classes (500 per class), creating a balanced dataset
@@ -36,7 +21,8 @@ ML/
 ├── models/                    # Saved model checkpoints
 │   ├── image_baseline_best.pt # Best image model checkpoint
 │   ├── text_baseline_best.pkl # Best text model checkpoint
-│   └── tfidf_vectorizer.pkl   # Fitted TF-IDF vectorizer
+│   ├── tfidf_vectorizer.pkl   # Fitted TF-IDF vectorizer
+│   └── multimodal_best.pt     # Best multimodal model checkpoint
 ├── notebooks/                 # Jupyter notebooks
 │   └── eda.ipynb              # Exploratory Data Analysis
 ├── results/                   # Results and evaluation outputs
@@ -51,6 +37,16 @@ ML/
 │   │   ├── confusion_matrix.png
 │   │   ├── class_performance.png
 │   │   └── text_features_info.txt
+│   ├── multimodal/            # Multimodal model results
+│   │   ├── training_metrics.csv
+│   │   ├── training_history.png
+│   │   ├── learning_rate.png
+│   │   ├── confusion_matrix.png
+│   │   ├── confusion_matrix_normalized.png
+│   │   ├── test_confusion_matrix.png
+│   │   ├── test_confusion_matrix_normalized.png
+│   │   ├── test_class_performance.png
+│   │   └── multimodal_eval.txt
 │   ├── text_baseline_eval.txt
 │   ├── text_lr_gridsearch.csv
 │   ├── preprocessing/
@@ -71,24 +67,29 @@ ML/
 │   │   └── text_features.py
 │   ├── models/
 │   │   ├── image_model.py
-│   │   └── text_model.py
+│   │   ├── text_model.py
+│   │   └── multimodal_model.py
 │   ├── training/
 │   │   ├── train_image.py
 │   │   ├── train_image_model.py
 │   │   ├── train_text_model.py
-│   │   └── evaluate_text_model.py
+│   │   ├── evaluate_text_model.py
+│   │   └── train_multimodal.py
 │   ├── data_loader.py
+│   ├── data_loader_multimodal.py
 │   ├── preprocessing.py
 │   ├── dataset_split.py
 │   └── test_dataset_split.py
 ├── test_data_loaders.py
 ├── test_image_model.py
 ├── test_text_features.py
+├── test_multimodal_data_loader.py
 ├── train_model.py
 ├── run_baseline_image_model.sh
 ├── run_text_baseline.sh
 ├── run_evaluation.sh
 ├── run_text_features.sh
+├── run_multimodal_model.sh
 ├── requirements.txt
 └── README.md
 ```
@@ -153,6 +154,17 @@ bash run_text_features.sh     # TF‑IDF pipeline
 bash run_text_baseline.sh     # train & evaluate text model
 ```
 
+### Multimodal Model Training and Evaluation
+
+```bash
+python test_multimodal_data_loader.py  # test multimodal loader
+bash run_multimodal_model.sh           # train & evaluate multimodal model
+```
+
+## Current Status
+
+**[IN PROGRESS]** - Currently training and evaluating the multimodal model that combines image and text features for improved classification performance.
+
 ## Model Architecture and Performance
 
 ### Image Baseline Model
@@ -165,7 +177,7 @@ bash run_text_baseline.sh     # train & evaluate text model
 
 | Metric | Score |
 |--------|-------|
-| **Accuracy** | **81.33 %** |
+| **Accuracy** | **81.33 %** |
 | **Macro F1** | **0.81** |
 
 **Per‑class results**
@@ -226,6 +238,13 @@ bash run_text_baseline.sh     # train & evaluate text model
 
 ![TF‑IDF Feature Importance](results/text_baseline/tfidf_feature_importance.png)
 
+### Multimodal Model (In Progress)
+- **Architecture**: Intermediate fusion approach combining image and text features
+- **Image Branch**: EfficientNet-B0 pre-trained backbone
+- **Text Branch**: TF-IDF features from best text model
+- **Fusion Strategy**: Concatenation of features with MLP classification head
+- **Training**: Progressive unfreezing, learning rate scheduling, early stopping
+
 ## Preprocessing Pipeline
 
 ### Image Preprocessing
@@ -252,7 +271,7 @@ bash run_text_baseline.sh     # train & evaluate text model
 ![Avg Tokens by Class](results/preprocessing/avg_tokens_by_class.png)
 
 ## Data Splitting
-- **Strategy**: Stratified (70 % train • 15 % val • 15 % test)
+- **Strategy**: Stratified (70 % train • 15 % val • 15 % test)
 - **Random Seed**: 42 for reproducibility
 
 ![Class Distribution Across Splits](results/splits/class_distribution.png)
@@ -268,7 +287,19 @@ A few example pages after preprocessing:
 ## Reproducibility
 This project fixes seeds in data splitting, data loaders and training scripts to enable repeatable results.
 
-## Future Work
-- Build a multimodal fusion model combining image & text features
-- Explore advanced architectures and fine‑tuning
+## Model Comparison
+
+| Model | Accuracy | Macro F1 | Notes |
+|-------|----------|----------|-------|
+| **Image Baseline** | 81.33% | 0.81 | EfficientNet-B0 with transfer learning |
+| **Text Baseline** | 83.20% | 0.83 | Logistic Regression with TF-IDF features |
+| **Multimodal** | TBD | TBD | Fusion of image and text features (in progress) |
+
+The text-based model achieves slightly better overall performance than the image-based model, suggesting that the OCR text contains strong discriminative features for document classification. The text model performs particularly well on classes 0, 2, and 6, while both models struggle more with class 9.
+
+Key observations:
+- Text model has higher precision for class 2 (0.96 vs 0.88)
+- Text model has higher recall for class 4 (0.92 vs 0.87)
+- Both models have similar challenges with class 9 (F1 scores of 0.70-0.71)
+- The multimodal approach currently in training aims to combine both modalities to leverage the strengths of each approach
 
