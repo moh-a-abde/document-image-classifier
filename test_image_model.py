@@ -122,93 +122,143 @@ def main():
     # Parse arguments
     args = parse_args()
     
-    # Set random seed for reproducibility
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(args.seed)
-    
-    # Ensure results directory exists
-    os.makedirs(args.results_dir, exist_ok=True)
-    
-    # Set device
-    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
-    
-    # Check if model checkpoint exists
-    if not os.path.exists(args.checkpoint_path):
-        logger.error(f"Model checkpoint not found at {args.checkpoint_path}")
+    try:
+        # Set random seed for reproducibility
+        torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
+        if torch.cuda.is_available() and args.device == 'cuda':
+            torch.cuda.manual_seed(args.seed)
+        
+        # Ensure results directory exists
+        os.makedirs(args.results_dir, exist_ok=True)
+        
+        # Log system info
+        logger.info(f"PyTorch version: {torch.__version__}")
+        try:
+            import numpy
+            logger.info(f"NumPy version: {numpy.__version__}")
+        except ImportError:
+            logger.warning("NumPy not available")
+        
+        # Set device
+        device = torch.device(args.device if (args.device == 'cuda' and torch.cuda.is_available()) else "cpu")
+        logger.info(f"Using device: {device}")
+        
+        # Check if model checkpoint exists
+        if not os.path.exists(args.checkpoint_path):
+            logger.error(f"Model checkpoint not found at {args.checkpoint_path}")
+            # Create empty evaluation results
+            with open(os.path.join(args.results_dir, 'image_baseline_eval.txt'), 'w') as f:
+                f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Error: Model checkpoint not found at {args.checkpoint_path}\n")
+            sys.exit(1)
+        
+        # Load test data
+        splits_dir = 'results/splits'
+        test_path = os.path.join(splits_dir, 'test.csv')
+        
+        if os.path.exists(test_path):
+            logger.info("Loading existing test split...")
+            try:
+                test_df = pd.read_csv(test_path)
+            except Exception as e:
+                logger.error(f"Error loading test split: {e}")
+                # Create empty evaluation results
+                with open(os.path.join(args.results_dir, 'image_baseline_eval.txt'), 'w') as f:
+                    f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write(f"Error: Failed to load test split: {e}\n")
+                sys.exit(1)
+        else:
+            logger.error("Test split not found. Please run training first.")
+            # Create empty evaluation results
+            with open(os.path.join(args.results_dir, 'image_baseline_eval.txt'), 'w') as f:
+                f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write("Error: Test split not found. Please run training first.\n")
+            sys.exit(1)
+        
+        logger.info(f"Test set size: {len(test_df)}")
+        
+        # Create data loader for test set
+        class_names = sorted(test_df['label'].unique())
+        logger.info(f"Classes: {class_names}")
+        
+        # Create dummy DataFrames for train and val (required by create_data_loaders)
+        # We'll only use the test loader
+        dummy_df = pd.DataFrame({'image_path': [], 'text_path': [], 'label': []})
+        
+        try:
+            # Create data loaders
+            data_loaders = create_data_loaders(
+                dummy_df,  # train_df (not used)
+                dummy_df,  # val_df (not used)
+                test_df=test_df,
+                batch_size=args.batch_size,
+                num_workers=args.num_workers
+            )
+            
+            # Create model
+            model = get_efficientnet_b0(num_classes=len(class_names))
+            
+            # Load checkpoint
+            logger.info(f"Loading model checkpoint from {args.checkpoint_path}")
+            model, _, _, best_val_acc = load_checkpoint(model, filename=args.checkpoint_path)
+            logger.info(f"Loaded model with validation accuracy: {best_val_acc:.2f}%")
+            
+            # Move model to device
+            model = model.to(device)
+            
+            # Evaluate model
+            logger.info("Evaluating model on test set...")
+            predictions, true_labels = predict(model, data_loaders['test'], device)
+            
+            # Calculate metrics
+            accuracy = accuracy_score(true_labels, predictions)
+            report = classification_report(true_labels, predictions, target_names=class_names)
+            
+            # Log results
+            logger.info(f"Test Accuracy: {accuracy*100:.2f}%")
+            logger.info(f"Classification Report:\n{report}")
+            
+            # Save results to file
+            results_file = os.path.join(args.results_dir, 'image_baseline_eval.txt')
+            with open(results_file, 'w') as f:
+                f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Model: {args.checkpoint_path}\n")
+                f.write(f"Test Set Size: {len(test_df)}\n")
+                f.write(f"Test Accuracy: {accuracy*100:.2f}%\n\n")
+                f.write("Classification Report:\n")
+                f.write(report)
+            
+            logger.info(f"Evaluation results saved to {results_file}")
+            
+            # Plot confusion matrix
+            try:
+                plot_confusion_matrix(true_labels, predictions, class_names, args.results_dir)
+            except Exception as e:
+                logger.error(f"Error creating confusion matrix plot: {e}")
+            
+            logger.info("Evaluation complete!")
+            
+        except Exception as e:
+            logger.error(f"Error during evaluation: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            
+            # Create error evaluation file
+            with open(os.path.join(args.results_dir, 'image_baseline_eval.txt'), 'w') as f:
+                f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Error during evaluation: {e}\n")
+                f.write("\nTraceback:\n")
+                import traceback
+                f.write(traceback.format_exc())
+            
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         sys.exit(1)
-    
-    # Load test data
-    splits_dir = 'results/splits'
-    test_path = os.path.join(splits_dir, 'test.csv')
-    
-    if os.path.exists(test_path):
-        logger.info("Loading existing test split...")
-        test_df = pd.read_csv(test_path)
-    else:
-        logger.error("Test split not found. Please run training first.")
-        sys.exit(1)
-    
-    logger.info(f"Test set size: {len(test_df)}")
-    
-    # Create data loader for test set
-    class_names = sorted(test_df['label'].unique())
-    logger.info(f"Classes: {class_names}")
-    
-    # Create dummy DataFrames for train and val (required by create_data_loaders)
-    # We'll only use the test loader
-    dummy_df = pd.DataFrame({'image_path': [], 'text_path': [], 'label': []})
-    
-    # Create data loaders
-    data_loaders = create_data_loaders(
-        dummy_df,  # train_df (not used)
-        dummy_df,  # val_df (not used)
-        test_df=test_df,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers
-    )
-    
-    # Create model
-    model = get_efficientnet_b0(num_classes=len(class_names))
-    
-    # Load checkpoint
-    logger.info(f"Loading model checkpoint from {args.checkpoint_path}")
-    model, _, _, best_val_acc = load_checkpoint(model, filename=args.checkpoint_path)
-    logger.info(f"Loaded model with validation accuracy: {best_val_acc:.2f}%")
-    
-    # Move model to device
-    model = model.to(device)
-    
-    # Evaluate model
-    logger.info("Evaluating model on test set...")
-    predictions, true_labels = predict(model, data_loaders['test'], device)
-    
-    # Calculate metrics
-    accuracy = accuracy_score(true_labels, predictions)
-    report = classification_report(true_labels, predictions, target_names=class_names)
-    
-    # Log results
-    logger.info(f"Test Accuracy: {accuracy*100:.2f}%")
-    logger.info(f"Classification Report:\n{report}")
-    
-    # Save results to file
-    results_file = os.path.join(args.results_dir, 'image_baseline_eval.txt')
-    with open(results_file, 'w') as f:
-        f.write(f"Evaluation Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"Model: {args.checkpoint_path}\n")
-        f.write(f"Test Set Size: {len(test_df)}\n")
-        f.write(f"Test Accuracy: {accuracy*100:.2f}%\n\n")
-        f.write("Classification Report:\n")
-        f.write(report)
-    
-    logger.info(f"Evaluation results saved to {results_file}")
-    
-    # Plot confusion matrix
-    plot_confusion_matrix(true_labels, predictions, class_names, args.results_dir)
-    
-    logger.info("Evaluation complete!")
 
 if __name__ == "__main__":
     main() 

@@ -54,43 +54,38 @@ jobs:
           
           source venv/bin/activate
           
-          # Install project dependencies
-          pip install -r requirements.txt
+          # First install numpy 1.x to avoid compatibility issues with PyTorch
+          pip install "numpy<2.0.0"
           
-          # Install additional dependencies for image processing
-          if ! python -c "import torch" &> /dev/null; then
-            pip install torch torchvision
-          fi
+          # Install PyTorch before other dependencies to make sure it uses the correct numpy
+          pip install torch==2.0.1 torchvision==0.15.2
           
-          if ! python -c "import cv2" &> /dev/null; then
-            pip install opencv-python
-          fi
+          # Install core image processing libraries
+          pip install opencv-python matplotlib seaborn scikit-learn pandas
           
-          if ! python -c "import matplotlib" &> /dev/null; then
-            pip install matplotlib
-          fi
-          
-          if ! python -c "import seaborn" &> /dev/null; then
-            pip install seaborn
-          fi
+          # Install project dependencies (excluding torch which we already installed)
+          pip install -r requirements.txt --no-deps 
+          pip check || echo "Warning: Some dependencies may be missing"
 
-      # Run the data loader test
+      # Run the data loader test with detailed error logging
       - name: Test data loaders
         run: |
           source venv/bin/activate
+          python -c "import torch; import numpy; print(f'PyTorch version: {torch.__version__}'); print(f'NumPy version: {numpy.__version__}')"
+          python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('Device:', torch.device('cuda' if torch.cuda.is_available() else 'cpu'))"
           python test_data_loaders.py
 
       # Run training
       - name: Train baseline image model
         run: |
           source venv/bin/activate
-          python src/training/train_image_model.py --batch-size 32 --epochs 50 --learning-rate 1e-3 --patience 5 --plot-history
+          python src/training/train_image_model.py --batch-size 32 --epochs 10 --learning-rate 1e-3 --patience 5 --plot-history --device cpu
 
       # Run evaluation
       - name: Evaluate baseline image model
         run: |
           source venv/bin/activate
-          python test_image_model.py
+          python test_image_model.py --device cpu
 
       # Generate summary report
       - name: Generate summary report
@@ -99,6 +94,13 @@ jobs:
           
           echo "# Baseline Image Model Results" > model_results.md
           echo "" >> model_results.md
+          echo "## Environment Information" >> model_results.md
+          echo "" >> model_results.md
+          echo "- PyTorch: $(python -c "import torch; print(torch.__version__)")" >> model_results.md
+          echo "- NumPy: $(python -c "import numpy; print(numpy.__version__)")" >> model_results.md
+          echo "- CUDA Available: $(python -c "import torch; print(torch.cuda.is_available())")" >> model_results.md
+          echo "" >> model_results.md
+          
           echo "## Training Summary" >> model_results.md
           echo "" >> model_results.md
           
@@ -149,20 +151,30 @@ jobs:
           git config --local user.email "github-actions@github.com"
           git config --local user.name "GitHub Actions"
           
-          # Add model results
-          git add models/image_baseline_best.pt
+          # Add model results if they exist
+          if [ -f "models/image_baseline_best.pt" ]; then
+            git add models/image_baseline_best.pt
+          fi
           
-          # Add results directory
-          git add results/image_baseline/
+          # Add results directory if it exists
+          if [ -d "results/image_baseline" ]; then
+            git add results/image_baseline/
+          fi
           
           # Add summary report
           git add model_results.md
           
-          # Add sample batch visualization
-          git add data_loader_test.png
+          # Add sample batch visualization if it exists
+          if [ -f "data_loader_test.png" ]; then
+            git add data_loader_test.png
+          fi
           
-          # Commit all changes
-          git commit -m "Add baseline image model training results [ci skip]"
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add baseline image model training results [ci skip]"
+          fi
 
       # Push changes back to the repository
       - name: Push changes
