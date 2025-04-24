@@ -185,11 +185,13 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 
 ```mermaid
 graph TD
-  A[Input Image (224×224×3)] --> B("Pre-trained EfficientNet-B0")
-  B --> C{Feature Vector}
-  C --> D[Classifier Head (MLP)]
-  D --> E[Output Logits (5 Classes)]
+  A["Input Image (224×224×3)"] --> B["Pre-trained EfficientNet-B0"]
+  B --> C["Feature Vector"]
+  C --> D["Classifier Head (MLP)"]
+  D --> E["Output Logits (5 Classes)"]
 ```
+
+
 
 #### Performance
 
