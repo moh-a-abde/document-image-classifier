@@ -283,21 +283,20 @@ graph TD
 ```mermaid
 graph TD
 
-  subgraph Image Branch
-    A[Input Image (224×224×3)] --> B("Pre-trained EfficientNet-B0")
-    B --> C{Image Feature Vector}
+  subgraph Image
+    A["Input Image (224×224×3)"] --> B["Pre-trained EfficientNet-B0"]
+    B --> C["Image Feature Vector"]
   end
 
-  subgraph Text Branch
-    D[Input Text] --> E("TF-IDF Vectorizer")
-    E --> F{Text Feature Vector}
+  subgraph Text
+    D["Input Text"] --> E["TF-IDF Vectorizer"]
+    E --> F["Text Feature Vector"]
   end
 
-  C --> G[Concatenate]
+  C --> G["Concatenate"]
   F --> G
-  G --> H[Fusion MLP Head]
-  H --> I[Output Logits (5 Classes)]
-
+  G --> H["Fusion MLP Head"]
+  H --> I["Output Logits (5 Classes)"]
 ```
 
 #### Performance
