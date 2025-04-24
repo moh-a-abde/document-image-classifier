@@ -184,10 +184,10 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 **Architecture Diagram**
 ```mermaid
 graph TD
-    A[Input Image (224x224x3)] --> B(Pre-trained EfficientNet-B0);
-    B --> C{Feature Vector};
-    C --> D[Classifier Head (MLP)];
-    D --> E[Output Logits (5 Classes)];
+  A[Input Image (224×224×3)] --> B("Pre-trained EfficientNet-B0")
+  B --> C{Feature Vector}
+  C --> D[Classifier Head (MLP)]
+  D --> E[Output Logits (5 Classes)]
 ```
 
 #### Performance
@@ -229,10 +229,10 @@ graph TD
 **Architecture Diagram**
 ```mermaid
 graph TD
-    A[Input Text] --> B(TF-IDF Vectorizer);
-    B --> C{Feature Vector (10k dims)};
-    C --> D[Logistic Regression];
-    D --> E[Output Probabilities (5 Classes)];
+  A[Input Text] --> B(TF-IDF Vectorizer)
+  B --> C{Feature Vector (10k dims)}
+  C --> D[Logistic Regression]
+  D --> E[Output Probabilities (5 Classes)]
 ```
 
 #### Performance
@@ -274,20 +274,22 @@ graph TD
 **Architecture Diagram**
 ```mermaid
 graph TD
-    subgraph Image Branch
-        A[Input Image (224x224x3)] --> B(Pre-trained EfficientNet-B0);
-        B --> C{Image Feature Vector};
-    end
 
-    subgraph Text Branch
-        D[Input Text] --> E(TF-IDF Vectorizer);
-        E --> F{Text Feature Vector};
-    end
+  subgraph Image Branch
+    A[Input Image (224×224×3)] --> B("Pre-trained EfficientNet-B0")
+    B --> C{Image Feature Vector}
+  end
 
-    C --> G(Concatenate);
-    F --> G;
-    G --> H[Fusion MLP Head];
-    H --> I[Output Logits (5 Classes)];
+  subgraph Text Branch
+    D[Input Text] --> E("TF-IDF Vectorizer")
+    E --> F{Text Feature Vector}
+  end
+
+  C --> G[Concatenate]
+  F --> G
+  G --> H[Fusion MLP Head]
+  H --> I[Output Logits (5 Classes)]
+
 ```
 
 #### Performance
