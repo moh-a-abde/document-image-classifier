@@ -379,7 +379,3 @@ The **multimodal model**, which combines features from both the image (using the
 
 Further analysis of the multimodal model's per-class performance (see confusion matrix and metrics table above) shows strong results across most classes, although class 9 remains slightly more challenging compared to others, albeit with improved performance compared to the baselines.
 
-## License
-
-(Optional: Add license information here, e.g., MIT License, Apache 2.0, etc.)
-
