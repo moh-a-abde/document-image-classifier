@@ -77,3 +77,5 @@ Thumbs.db
 
 requirements-specification/
 .cursor/
+.repomixignore
+.repomix-output.txt
