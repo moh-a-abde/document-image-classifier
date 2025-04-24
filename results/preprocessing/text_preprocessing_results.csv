@@ -1,0 +1,172 @@
+class,file,original_text,original_length,original_word_count,default_tokens_count,stemming_tokens_count,with_stopwords_count,minimal_tokens_count,default_tokens,stemming_tokens,with_stopwords_tokens,minimal_tokens
+9,231b5756-a628-48d4-ad81-1c4e62b39691.TIF.txt,"   
+
+ 
+
+Ricien
+0
+
+  
+ 
+   
+
+ 
+
+ 
+
+l Resume
+
+ne @
+neer Society |
+Tn Steedy
+
+Nationwide He
+
+       
+
+O...",109,14,9,9,10,10,"['ricien', 'resume', 'ne', 'neer', 'society', 'tn', 'steedy', 'nationwide', 'ocsygleo']","['ricien', 'resum', 'ne', 'neer', 'societi', 'tn', 'steedi', 'nationwid', 'ocsygleo']","['ricien', 'resume', 'ne', 'neer', 'society', 'tn', 'steedy', 'nationwide', 'he', 'ocsygleo']","['ricien', 'resume', 'ne', 'neer', 'society', 'tn', 'steedy', 'nationwide', 'he', 'ocsygleo']"
+9,9857a4bb-b70d-47d0-a560-6ad3ccf053d7.TIF.txt," 
+
+SATURDAY, Oct 9.1999
+
+AUSTIN ~ Al business owners
+— especially sraall business
+‘owners — have lon...",2726,433,261,258,417,414,"['saturday', 'oct', 'austin', 'al', 'business', 'owner', 'especially', 'sraall', 'business', 'owner']","['saturday', 'oct', 'austin', 'al', 'busi', 'owner', 'especi', 'sraall', 'busi', 'owner']","['saturday', 'oct', 'austin', 'al', 'business', 'owner', 'especially', 'sraall', 'business', 'owner']","['saturday', 'oct', 'austin', 'al', 'business', 'owners', 'especially', 'sraall', 'business', 'owners']"
+9,025c2e73-6643-41a9-92db-0ddc9ee5ffbb.TIF.txt," 
+
+“ ROAZ7IOZ 7
+
+Page 4
+American Medical News (01/24/94-01/31/94) Vol. 37, No. 4, P. 11
+
+(Hear, Wayn...",3037,488,295,295,462,462,"['roazioz', 'page', 'american', 'medical', 'news', 'vol', 'hear', 'wayne', 'oye', 'recent']","['roazioz', 'page', 'american', 'medic', 'news', 'vol', 'hear', 'wayn', 'oye', 'recent']","['roazioz', 'page', 'american', 'medical', 'news', 'vol', 'no', 'hear', 'wayne', 'oye']","['roazioz', 'page', 'american', 'medical', 'news', 'vol', 'no', 'hear', 'wayne', 'oye']"
+0,487a3a95-06a5-4d4c-8ca2-ff72bc1bbdb5.TIF.txt,"PHILIP MORRIS
+
+in Fan 0202 4545599
+
+Seen,
+
+ 
+
+February 21, 2002
+
+Dr. Lyndon Haviland
+Executive Vice ...",2118,361,204,204,337,339,"['philip', 'morris', 'fan', 'see', 'february', 'dr', 'lyndon', 'haviland', 'executive', 'vice']","['philip', 'morri', 'fan', 'seen', 'februari', 'dr', 'lyndon', 'haviland', 'execut', 'vice']","['philip', 'morris', 'in', 'fan', 'see', 'february', 'dr', 'lyndon', 'haviland', 'executive']","['philip', 'morris', 'in', 'fan', 'seen', 'february', 'dr', 'lyndon', 'haviland', 'executive']"
+0,227f1c8b-9f83-4fa5-8ac3-848d378747ae.TIF.txt,"03/03/9811:
+
+  
+
+3 Fax % 9190 ABELIAN
+
+ 
+
+ 
+
+cmuniren ABELMAN, FRAYNE & SCHWAB
+St, Aree tae syS.cnom...",1300,215,131,131,183,183,"['fax', 'abelian', 'cmuniren', 'abelman', 'frayne', 'schwab', 'st', 'aree', 'tae', 'syscnom']","['fax', 'abelian', 'cmuniren', 'abelman', 'frayn', 'schwab', 'st', 'are', 'tae', 'syscnom']","['fax', 'abelian', 'cmuniren', 'abelman', 'frayne', 'schwab', 'st', 'aree', 'tae', 'syscnom']","['fax', 'abelian', 'cmuniren', 'abelman', 'frayne', 'schwab', 'st', 'aree', 'tae', 'syscnom']"
+0,e6666be7-524d-4b4d-8918-14a1bb39b91c.TIF.txt," 
+
+ 
+
+wet
+
+To: Jandes, Jeftey K.
+From Cava, 8 W.
+Posted: 2/10/97 21:06
+Opened: 2/11/97 8:16
+Subject....",407,71,43,44,58,59,"['wet', 'jandes', 'jeftey', 'cava', 'post', 'open', 'subject', 'yk', 'enterprise', 'jeff']","['wet', 'jand', 'jeftey', 'cava', 'post', 'open', 'subject', 'yk', 'enterpris', 'jeff']","['wet', 'to', 'jandes', 'jeftey', 'from', 'cava', 'post', 'open', 'subject', 'yk']","['wet', 'to', 'jandes', 'jeftey', 'from', 'cava', 'posted', 'opened', 'subject', 'yk']"
+6,9c419732-c2e6-47a3-a76d-1588ba56bdf4.TIF.txt,"S-911-18805-1 NGST
+
+otsr-9¢o0e ""3c ‘worsunse
+“AUN rong guoanntg $2
+ausu 2002196 2917
+
+   
+
+ssmgiSTE
+...",718,107,79,79,80,80,"['ngst', 'otsroe', 'worsunse', 'aun', 'rong', 'guoanntg', 'ausu', 'ssmgiste', 'asoy', 'oyu']","['ngst', 'otsro', 'worsuns', 'aun', 'rong', 'guoanntg', 'ausu', 'ssmgist', 'asoy', 'oyu']","['ngst', 'otsroe', 'worsunse', 'aun', 'rong', 'guoanntg', 'ausu', 'ssmgiste', 'asoy', 'oyu']","['ngst', 'otsroe', 'worsunse', 'aun', 'rong', 'guoanntg', 'ausu', 'ssmgiste', 'asoys', 'oyu']"
+6,4b819020-b4a5-44e6-a75f-97d8a4a89e8a.TIF.txt,"    
+
+{yo waurdojanap ayy “wor onnsu0>
+yeas apne ut om KARO ST 30}
+
+     
+
+ 
+
+orudooat os st 2H Siff...",1720,305,222,221,230,230,"['yo', 'waurdojanap', 'ayy', 'wor', 'onnsu', 'yea', 'apne', 'ut', 'om', 'karo']","['yo', 'waurdojanap', 'ayi', 'wor', 'onnsu', 'yea', 'apn', 'ut', 'om', 'karo']","['yo', 'waurdojanap', 'ayy', 'wor', 'onnsu', 'yea', 'apne', 'ut', 'om', 'karo']","['yo', 'waurdojanap', 'ayy', 'wor', 'onnsu', 'yeas', 'apne', 'ut', 'om', 'karo']"
+6,6e6fe578-d440-4b02-a823-81cb9fff688c.TIF.txt," 
+
+a7-acT-1994 16:47
+
+FROM C&B LONDON 70
+
+PAPERS
+
+sg7seaiaHsHaLe12izsa = P.228 035
+
+Mortality in rel...",3083,505,271,271,475,475,"['aact', 'cb', 'london', 'paper', 'sgseaiahshaleizsa', 'mortality', 'relation', 'smoking', 'year', 'observation']","['aact', 'cb', 'london', 'paper', 'sgseaiahshaleizsa', 'mortal', 'relat', 'smoke', 'year', 'observ']","['aact', 'from', 'cb', 'london', 'paper', 'sgseaiahshaleizsa', 'mortality', 'in', 'relation', 'to']","['aact', 'from', 'cb', 'london', 'papers', 'sgseaiahshaleizsa', 'mortality', 'in', 'relation', 'to']"
+4,6ba0e965-160d-458b-9f95-1738abfa1f6b.TIF.txt," 
+
+   
+
+= =
+The best tobacco makes the best smoke came,
+‘Tae wyecial Camel biend of cont tobaccon ha...",405,62,41,40,56,55,"['good', 'tobacco', 'make', 'good', 'smoke', 'come', 'tae', 'wyecial', 'camel', 'biend']","['best', 'tobacco', 'make', 'best', 'smoke', 'came', 'tae', 'wyecial', 'camel', 'biend']","['the', 'good', 'tobacco', 'make', 'the', 'good', 'smoke', 'come', 'tae', 'wyecial']","['the', 'best', 'tobacco', 'makes', 'the', 'best', 'smoke', 'came', 'tae', 'wyecial']"
+4,df3a97bd-d41a-4ebc-a090-97825d2db289.TIF.txt," 
+
+   
+
+“Taste Camel Ina Whole New Light
+
+ 
+
+‘SURGEON GENERAL'S WARNING. Cigarette
+Smoke Contains Ca...",134,14,14,14,14,14,"['taste', 'camel', 'ina', 'whole', 'new', 'light', 'surgeon', 'general', 'warn', 'cigarette']","['tast', 'camel', 'ina', 'whole', 'new', 'light', 'surgeon', 'gener', 'warn', 'cigarett']","['taste', 'camel', 'ina', 'whole', 'new', 'light', 'surgeon', 'general', 'warn', 'cigarette']","['taste', 'camel', 'ina', 'whole', 'new', 'light', 'surgeon', 'generals', 'warning', 'cigarette']"
+4,85aece9e-40c8-47e8-aa2f-3f970ca095b4.TIF.txt,"48
+
+ 
+
+Date BeNole
+on
+
+   
+ 
+
+ 
+
+ 
+
+ 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+aes
+Pere REN ESE
+SE [sunceon GENERALS WARNIN...",1008,156,120,120,138,138,"['date', 'benole', 'aes', 'pere', 'ren', 'ese', 'se', 'sunceon', 'general', 'warning']","['date', 'benol', 'ae', 'pere', 'ren', 'ese', 'se', 'sunceon', 'gener', 'warn']","['date', 'benole', 'on', 'aes', 'pere', 'ren', 'ese', 'se', 'sunceon', 'general']","['date', 'benole', 'on', 'aes', 'pere', 'ren', 'ese', 'se', 'sunceon', 'generals']"
+2,86ecf9a9-b10c-4334-9851-9a55e1964159.TIF.txt,"ovina Messago—-
+From: ‘Galo, Gina M.
+
+Sent Monday, Decamber 08, 1699 8:00 AM
+To: ‘Chaikin Karon
+
+Sub...",331,58,28,28,51,51,"['ovina', 'messago', 'galo', 'gina', 'send', 'monday', 'decamber', 'chaikin', 'karon', 'subject']","['ovina', 'messago', 'galo', 'gina', 'sent', 'monday', 'decamb', 'chaikin', 'karon', 'subject']","['ovina', 'messago', 'from', 'galo', 'gina', 'send', 'monday', 'decamber', 'be', 'to']","['ovina', 'messago', 'from', 'galo', 'gina', 'sent', 'monday', 'decamber', 'am', 'to']"
+2,ed4c4d26-277c-4493-9efc-db1e3082f611.TIF.txt,"“ro: BIOL --vewloo21A 520 °
+
+2505155620 t
+mtn Copy
+Spel ESN hav neat
+
+TMROST didn't uve his profs ma...",203,36,27,26,32,31,"['ro', 'biol', 'vewlooa', 'mtn', 'copy', 'spel', 'esn', 'hav', 'neat', 'tmrost']","['ro', 'biol', 'vewlooa', 'mtn', 'copi', 'spel', 'esn', 'hav', 'neat', 'tmrost']","['ro', 'biol', 'vewlooa', 'mtn', 'copy', 'spel', 'esn', 'hav', 'neat', 'tmrost']","['ro', 'biol', 'vewlooa', 'mtn', 'copy', 'spel', 'esn', 'hav', 'neat', 'tmrost']"
+2,da778b8c-33f7-42f8-987b-f239692b4ecc.TIF.txt,"From: Jacovec, Joanne M.
+
+To: Premo, Kathryn A.; Comett, Rick R.; MacPherson, Leslie G.; Nix, Bruce;...",576,82,58,58,66,66,"['jacovec', 'joanne', 'premo', 'kathryn', 'comett', 'rick', 'macpherson', 'leslie', 'nix', 'bruce']","['jacovec', 'joann', 'premo', 'kathryn', 'comett', 'rick', 'macpherson', 'lesli', 'nix', 'bruce']","['from', 'jacovec', 'joanne', 'to', 'premo', 'kathryn', 'comett', 'rick', 'macpherson', 'leslie']","['from', 'jacovec', 'joanne', 'to', 'premo', 'kathryn', 'comett', 'rick', 'macpherson', 'leslie']"
