@@ -102,7 +102,7 @@ ML/
    - **Windows**: `venv\Scripts\activate`
    - **Mac/Linux**: `source venv/bin/activate`
 4. Install dependencies: `pip install -r requirements.txt`
-5. Download required NLTK data:
+5. Download required NLTK data (used for text preprocessing like stop-word removal):
 
 ```python
 import nltk
@@ -111,7 +111,7 @@ nltk.download('punkt')
 nltk.download('wordnet')
 ```
 
-6. Download required spaCy model:
+6. Download required spaCy model (used for lemmatization during text preprocessing):
 
 ```bash
 python -m spacy download en_core_web_sm
@@ -119,51 +119,59 @@ python -m spacy download en_core_web_sm
 
 ## Usage
 
+The primary way to run the different model pipelines (preprocessing, training, evaluation) is via the provided shell scripts (`run_*.sh`). You can also execute the individual Python scripts for specific steps or debugging.
+
 ### Data Exploration
 
 ```bash
 jupyter lab notebooks/eda.ipynb
 ```
 
-### Text Preprocessing
-
-```bash
-python src/test_text_preprocessing.py
-```
-
 ### Dataset Splitting
 
 ```bash
+# Generates train/val/test splits (results saved in results/splits/)
 python src/test_dataset_split.py
 ```
 
 ### Image Model Training and Evaluation
 
 ```bash
-python test_data_loaders.py      # test loaders
-python train_model.py            # train model
-bash run_baseline_image_model.sh # full pipeline
-bash run_evaluation.sh           # evaluate model
+# Run the full image baseline pipeline (training & evaluation)
+bash run_baseline_image_model.sh
+
+# Or run individual steps:
+python test_data_loaders.py  # Test image data loading
+python train_model.py        # Train image model (requires manual config)
+bash run_evaluation.sh       # Evaluate the trained image model
 ```
 
 ### Text Model Training and Evaluation
 
 ```bash
-python test_text_features.py  # feature extraction & viz
-bash run_text_features.sh     # TF‑IDF pipeline
-bash run_text_baseline.sh     # train & evaluate text model
+# Run the full text baseline pipeline (feature extraction, training & evaluation)
+bash run_text_baseline.sh
+
+# Or run individual steps:
+bash run_text_features.sh     # Generate TF-IDF features
+python test_text_features.py  # Visualize text features
+# (Training/evaluation is handled by run_text_baseline.sh which calls Python scripts)
 ```
 
 ### Multimodal Model Training and Evaluation
 
 ```bash
-python test_multimodal_data_loader.py  # test multimodal loader
-bash run_multimodal_model.sh           # train & evaluate multimodal model
+# Run the full multimodal pipeline (training & evaluation)
+bash run_multimodal_model.sh
+
+# Or run individual steps:
+python test_multimodal_data_loader.py  # Test multimodal data loading
+# (Training/evaluation is handled by run_multimodal_model.sh which calls Python scripts)
 ```
 
 ## Current Status
 
-**[IN PROGRESS]** - Currently training and evaluating the multimodal model that combines image and text features for improved classification performance.
+**[COMPLETED]** - All baseline models and the final multimodal model have been trained and evaluated. The multimodal approach demonstrated the best performance. Results and model checkpoints are available in the `results/` and `models/` directories respectively.
 
 ## Model Architecture and Performance
 
@@ -238,12 +246,41 @@ bash run_multimodal_model.sh           # train & evaluate multimodal model
 
 ![TF‑IDF Feature Importance](results/text_baseline/tfidf_feature_importance.png)
 
-### Multimodal Model (In Progress)
+### Multimodal Model
 - **Architecture**: Intermediate fusion approach combining image and text features
 - **Image Branch**: EfficientNet-B0 pre-trained backbone
 - **Text Branch**: TF-IDF features from best text model
 - **Fusion Strategy**: Concatenation of features with MLP classification head
 - **Training**: Progressive unfreezing, learning rate scheduling, early stopping
+
+#### Performance
+
+| Metric        | Score    |
+|---------------|----------|
+| **Accuracy**  | **91.47%** |
+| **Macro F1**  | **0.9141** |
+
+**Per-class results**
+
+| Class | Precision | Recall | F1-Score |
+|-------|-----------|--------|----------|
+| 0     | 0.96      | 0.92   | 0.94     |
+| 2     | 0.96      | 0.97   | 0.97     |
+| 4     | 0.90      | 0.96   | 0.93     |
+| 6     | 0.83      | 0.93   | 0.88     |
+| 9     | 0.94      | 0.79   | 0.86     |
+
+**Confusion Matrix (Test Set)**
+
+![Confusion Matrix](results/multimodal/test_confusion_matrix.png)
+
+**Normalized Confusion Matrix (Test Set)**
+
+![Normalized Confusion Matrix](results/multimodal/test_confusion_matrix_normalized.png)
+
+**Training History**
+
+![Training History](results/multimodal/training_history.png)
 
 ## Preprocessing Pipeline
 
@@ -285,21 +322,27 @@ A few example pages after preprocessing:
 ![Sample 3](results/preprocessing/sample_10_2.png)
 
 ## Reproducibility
-This project fixes seeds in data splitting, data loaders and training scripts to enable repeatable results.
+This project fixes seeds in data splitting, data loaders and training scripts to enable repeatable results. We recommend using the provided `requirements.txt` for the exact environment setup.
 
-## Model Comparison
+## Model Comparison and Conclusion
 
-| Model | Accuracy | Macro F1 | Notes |
-|-------|----------|----------|-------|
-| **Image Baseline** | 81.33% | 0.81 | EfficientNet-B0 with transfer learning |
-| **Text Baseline** | 83.20% | 0.83 | Logistic Regression with TF-IDF features |
-| **Multimodal** | TBD | TBD | Fusion of image and text features (in progress) |
+The performance of the three developed models on the test set is summarized below:
 
-The text-based model achieves slightly better overall performance than the image-based model, suggesting that the OCR text contains strong discriminative features for document classification. The text model performs particularly well on classes 0, 2, and 6, while both models struggle more with class 9.
+| Model              | Test Accuracy | Test Macro F1 | Key Features                               |
+|--------------------|---------------|---------------|--------------------------------------------|
+| **Image Baseline** | 81.33%        | 0.810         | EfficientNet-B0 (transfer learning)        |
+| **Text Baseline**  | 83.20%        | 0.832         | Logistic Regression with TF-IDF features   |
+| **Multimodal**     | **91.47%**    | **0.914**     | Fusion of Image (EfficientNet) & Text (TF-IDF) |
 
-Key observations:
-- Text model has higher precision for class 2 (0.96 vs 0.88)
-- Text model has higher recall for class 4 (0.92 vs 0.87)
-- Both models have similar challenges with class 9 (F1 scores of 0.70-0.71)
-- The multimodal approach currently in training aims to combine both modalities to leverage the strengths of each approach
+**Conclusion:**
+
+Both baseline models achieved reasonable performance, with the text-based Logistic Regression model slightly outperforming the image-based EfficientNet model. This suggests that the OCR text contains significant discriminative information for this classification task.
+
+The **multimodal model**, which combines features from both the image (using the pre-trained EfficientNet backbone) and the text (using TF-IDF features), achieved a **significant improvement** over both baselines. With a Test Accuracy of 91.47% and a Macro F1 score of 0.914, it demonstrates the benefit of leveraging both visual and textual information for classifying these document images. The fusion strategy effectively integrates the strengths of both modalities, leading to the best overall classification performance.
+
+Further analysis of the multimodal model's per-class performance (see confusion matrix and metrics table above) shows strong results across most classes, although class 9 remains slightly more challenging compared to others, albeit with improved performance compared to the baselines.
+
+## License
+
+(Optional: Add license information here, e.g., MIT License, Apache 2.0, etc.)
 
