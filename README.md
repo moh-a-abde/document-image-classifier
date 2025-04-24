@@ -182,6 +182,7 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 - **Training**: Learning‑rate scheduling & early stopping
 
 **Architecture Diagram**
+
 ```mermaid
 graph TD
   A[Input Image (224×224×3)] --> B("Pre-trained EfficientNet-B0")
