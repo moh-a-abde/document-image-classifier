@@ -2,7 +2,7 @@
 
 This project develops a machine learning model to classify scanned document images into five predefined categories (0, 2, 4, 6, 9), leveraging both image data and OCR text.
 
-## Model Comparison: Image vs. Text Baselines
+## Quick Model Comparison: Image vs. Text Baselines
 
 | Model | Accuracy | Macro F1 | Notes |
 |-------|----------|----------|-------|
