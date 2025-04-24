@@ -1,0 +1,5 @@
+train_size: 1750
+val_size: 375
+test_size: 375
+feature_dim: 10000
+label_map: {'0': 0, '2': 1, '4': 2, '6': 3, '9': 4}
