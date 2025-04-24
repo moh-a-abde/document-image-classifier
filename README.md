@@ -181,6 +181,15 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 - **Regularization**: Dropout (0.2) to prevent overfitting
 - **Training**: Learning‑rate scheduling & early stopping
 
+**Architecture Diagram**
+```mermaid
+graph TD
+    A[Input Image (224x224x3)] --> B(Pre-trained EfficientNet-B0);
+    B --> C{Feature Vector};
+    C --> D[Classifier Head (MLP)];
+    D --> E[Output Logits (5 Classes)];
+```
+
 #### Performance
 
 | Metric | Score |
@@ -217,6 +226,15 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
   - **Best Parameters**: C=10, penalty='l2', class_weight=None
   - **Best CV Score**: 0.8425
 
+**Architecture Diagram**
+```mermaid
+graph TD
+    A[Input Text] --> B(TF-IDF Vectorizer);
+    B --> C{Feature Vector (10k dims)};
+    C --> D[Logistic Regression];
+    D --> E[Output Probabilities (5 Classes)];
+```
+
 #### Performance
 
 | Metric | Score |
@@ -252,6 +270,25 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 - **Text Branch**: TF-IDF features from best text model
 - **Fusion Strategy**: Concatenation of features with MLP classification head
 - **Training**: Progressive unfreezing, learning rate scheduling, early stopping
+
+**Architecture Diagram**
+```mermaid
+graph TD
+    subgraph Image Branch
+        A[Input Image (224x224x3)] --> B(Pre-trained EfficientNet-B0);
+        B --> C{Image Feature Vector};
+    end
+
+    subgraph Text Branch
+        D[Input Text] --> E(TF-IDF Vectorizer);
+        E --> F{Text Feature Vector};
+    end
+
+    C --> G(Concatenate);
+    F --> G;
+    G --> H[Fusion MLP Head];
+    H --> I[Output Logits (5 Classes)];
+```
 
 #### Performance
 
