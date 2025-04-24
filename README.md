@@ -169,10 +169,6 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 # (Training/evaluation is handled by run_multimodal_model.sh which calls Python scripts)
 ```
 
-## Current Status
-
-**[COMPLETED]** - All baseline models and the final multimodal model have been trained and evaluated. The multimodal approach demonstrated the best performance. Results and model checkpoints are available in the `results/` and `models/` directories respectively.
-
 ## Model Architecture and Performance
 
 ### Image Baseline Model
@@ -185,13 +181,22 @@ python test_multimodal_data_loader.py  # Test multimodal data loading
 
 ```mermaid
 graph TD
-  A["Input Image (224×224×3)"] --> B["Pre-trained EfficientNet-B0"]
-  B --> C["Feature Vector"]
-  C --> D["Classifier Head (MLP)"]
-  D --> E["Output Logits (5 Classes)"]
+
+  subgraph Image
+    A["Input Image (224×224×3)"] --> B["Pre-trained EfficientNet-B0"]
+    B --> C["Image Feature Vector"]
+  end
+
+  subgraph Text
+    D["Input Text"] --> E["TF-IDF Vectorizer"]
+    E --> F["Text Feature Vector"]
+  end
+
+  C --> G["Concatenate"]
+  F --> G
+  G --> H["Fusion MLP Head"]
+  H --> I["Output Logits (5 Classes)"]
 ```
-
-
 
 #### Performance
 
@@ -375,6 +380,12 @@ The performance of the three developed models on the test set is summarized belo
 | **Image Baseline** | 81.33%        | 0.810         | EfficientNet-B0 (transfer learning)        |
 | **Text Baseline**  | 83.20%        | 0.832         | Logistic Regression with TF-IDF features   |
 | **Multimodal**     | **91.47%**    | **0.914**     | Fusion of Image (EfficientNet) & Text (TF-IDF) |
+
+
+## Current Status
+
+**[COMPLETED]** - All baseline models and the final multimodal model have been trained and evaluated. The multimodal approach demonstrated the best performance. Results and model checkpoints are available in the `results/` and `models/` directories respectively. `process_description.md` : Contains a long form description of the process I took to complete the exam as per the instruction set.
+
 
 **Conclusion:**
 
