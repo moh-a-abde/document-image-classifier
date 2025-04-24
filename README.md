@@ -231,11 +231,7 @@ A few example pages after preprocessing:
 ## Reproducibility
 This project fixes seeds in data splitting, data loaders and training scripts to enable repeatable results.
 
-## License
-Provided for educational purposes only.
-
 ## Future Work
 - Build a multimodal fusion model combining image & text features
 - Explore advanced architectures and fine‑tuning
-- Expose an inference API for deployment
 
