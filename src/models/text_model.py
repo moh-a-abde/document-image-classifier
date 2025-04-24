@@ -207,7 +207,7 @@ def tune_text_classifier(
     scoring='f1_macro', 
     n_jobs=-1,
     verbose=1
-) -> Tuple[Dict[str, Any], LogisticRegression]:
+) -> Tuple[Dict[str, Any], LogisticRegression, GridSearchCV]:
     """
     Tune hyperparameters for the text classifier using GridSearchCV.
     
@@ -231,7 +231,7 @@ def tune_text_classifier(
     Returns:
     --------
     tuple
-        Dictionary of best parameters and the best estimator
+        Dictionary of best parameters, the best estimator, and the GridSearchCV object
     """
     if param_grid is None:
         param_grid = {
@@ -268,4 +268,4 @@ def tune_text_classifier(
     logger.info(f"Best parameters: {grid_search.best_params_}")
     logger.info(f"Best CV score: {grid_search.best_score_:.4f}")
     
-    return grid_search.best_params_, grid_search.best_estimator_ 
+    return grid_search.best_params_, grid_search.best_estimator_, grid_search 

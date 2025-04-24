@@ -148,7 +148,7 @@ def main():
     }
     
     # Initialize and fit GridSearchCV
-    best_params, best_model = tune_text_classifier(
+    best_params, best_model, grid_search = tune_text_classifier(
         X_train, 
         y_train, 
         param_grid=param_grid, 
@@ -158,7 +158,7 @@ def main():
     
     # Save grid search results
     grid_search_results_path = os.path.join(args.results_dir, 'text_lr_gridsearch.csv')
-    save_cv_results(best_model, grid_search_results_path)
+    save_cv_results(grid_search, grid_search_results_path)
     
     # Step 5: Create and save best model
     logger.info("Training final model with best parameters...")

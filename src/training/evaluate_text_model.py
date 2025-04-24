@@ -23,7 +23,7 @@ if src_dir not in sys.path:
     sys.path.append(src_dir)
 
 # Import project modules
-from features.text_features import extract_text_features, load_vectorizer
+from features.text_features import load_vectorizer, extract_text_features, _load_and_preprocess_texts
 from models.text_model import TextClassifier
 from data_loader import load_data_paths, create_data_splits
 
@@ -150,7 +150,6 @@ def main():
     
     # Step 5: Prepare test data
     logger.info("Preparing test data...")
-    from src.features.text_features import _load_and_preprocess_texts
     
     # Preprocess test texts
     test_texts = _load_and_preprocess_texts(test_df['text_path'])
