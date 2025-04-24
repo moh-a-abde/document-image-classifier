@@ -2,6 +2,21 @@
 
 This project develops a machine learning model to classify scanned document images into five predefined categories (0, 2, 4, 6, 9), leveraging both image data and OCR text.
 
+## Model Comparison: Image vs. Text Baselines
+
+| Model | Accuracy | Macro F1 | Notes |
+|-------|----------|----------|-------|
+| **Image Baseline** | 81.33% | 0.81 | EfficientNet-B0 with transfer learning |
+| **Text Baseline** | 83.20% | 0.83 | Logistic Regression with TF-IDF features |
+
+The text-based model achieves slightly better overall performance than the image-based model, suggesting that the OCR text contains strong discriminative features for document classification. The text model performs particularly well on classes 0, 2, and 6, while both models struggle more with class 9.
+
+Key observations:
+- Text model has higher precision for class 2 (0.96 vs 0.88)
+- Text model has higher recall for class 4 (0.92 vs 0.87)
+- Both models have similar challenges with class 9 (F1 scores of 0.70-0.71)
+- A multimodal approach combining both modalities could potentially leverage the strengths of each approach
+
 ## Dataset
 
 - **Overview**: 2500 scanned documents split into 5 classes (500 per class), creating a balanced dataset
@@ -256,19 +271,4 @@ This project fixes seeds in data splitting, data loaders and training scripts to
 ## Future Work
 - Build a multimodal fusion model combining image & text features
 - Explore advanced architectures and fine‑tuning
-
-## Model Comparison: Image vs. Text Baselines
-
-| Model | Accuracy | Macro F1 | Notes |
-|-------|----------|----------|-------|
-| **Image Baseline** | 81.33% | 0.81 | EfficientNet-B0 with transfer learning |
-| **Text Baseline** | 83.20% | 0.83 | Logistic Regression with TF-IDF features |
-
-The text-based model achieves slightly better overall performance than the image-based model, suggesting that the OCR text contains strong discriminative features for document classification. The text model performs particularly well on classes 0, 2, and 6, while both models struggle more with class 9.
-
-Key observations:
-- Text model has higher precision for class 2 (0.96 vs 0.88)
-- Text model has higher recall for class 4 (0.92 vs 0.87)
-- Both models have similar challenges with class 9 (F1 scores of 0.70-0.71)
-- A multimodal approach combining both modalities could potentially leverage the strengths of each approach
 
